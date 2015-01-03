@@ -1,8 +1,7 @@
 #004BB1#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Disco Defense
-Open source game by Ferris(FerrisofVienna) Bartak
-and Paolo "Broccolimaniac" Perfahl
+Open source game by Ferris (FerrisofVienna) Bartak
 using python3 and pygame
 """
 
