@@ -338,6 +338,42 @@ class Porters(pygame.sprite.Sprite):
                 #self.dy += Game.FORCE_OF_GRAVITY # gravity suck fragments down
             self.rect.centerx = round(self.pos[0],0)
             self.rect.centery = round(self.pos[1],0)
+class Shoot(pygame.sprite.Sprite):
+        gravity = False # fragments fall down ?
+        def __init__(self, pos):
+            pygame.sprite.Sprite.__init__(self, self.groups)
+            self.pos = [0.0,0.0]
+            self.pos[0] = pos[0]
+            self.pos[1] = pos[1]
+            self.explode = 0
+            self.image = pygame.Surface((15,15))
+            self.image.set_colorkey((0,0,0)) # black transparent
+            pygame.draw.circle(self.image, (random.randint(0,250),random.randint(0,255),random.randint(1,250)), (5,10),
+                                            random.randint(3,10))
+            self.image = self.image.convert_alpha()
+            self.rect = self.image.get_rect()
+            self.rect.center = self.pos #if you forget this line the sprite sit in the topleft corner
+            self.lifetime = 1 + random.random() * 2 # max 6 seconds
+            self.time = 0.0
+            self.dx = -500
+            self.dy = 0
+
+        def update(self, seconds):
+            self.time += seconds
+            if self.time > self.lifetime:
+                for x in range(300):
+                    Explosion((self.pos[0],self.pos[1]))
+                    self.kill()
+            if self.explode > 0:
+                for x in range(300):
+                    Explosion((self.pos[0],self.pos[1]))
+                    self.kill()
+            self.pos[0] += self.dx * seconds
+            self.pos[1] += self.dy * seconds
+            #if Fragment.gravity:
+                #self.dy += Game.FORCE_OF_GRAVITY # gravity suck fragments down
+            self.rect.centerx = round(self.pos[0],0)
+            self.rect.centery = round(self.pos[1],0)
 class E_Explosion(pygame.sprite.Sprite):
         gravity = False # fragments fall down ?
         def __init__(self, pos):
@@ -1067,7 +1103,7 @@ class EvilMagician2(pygame.sprite.Sprite):  #DISCO GARY GLITTER
             #self.pos[1] = float(startpos[1])
             #self.area = screen.get_rect()
             self.area = pygame.Rect(0,100,1024,300)
-            self.image = Security.images[2]
+            self.image = Security.images[0]
             self.hitpointsfull = float(hitpointsfull) # maximal hitpoints , float makes decimal
             self.hitpoints = float(hitpointsfull) # actual hitpoints
             self.rect = self.image.get_rect()
@@ -1404,7 +1440,7 @@ class Actor(pygame.sprite.Sprite):
             #self.pos[1] = float(startpos[1])
             #self.area = screen.get_rect()
             self.area = pygame.Rect(0,100,1024,300)
-            self.image = Security.images[1]
+            self.image = Security.images[0]
             self.hitpointsfull = float(hitpointsfull) # maximal hitpoints , float makes decimal
             self.hitpoints = float(hitpointsfull) # actual hitpoints
             self.rect = self.image.get_rect()
@@ -1437,6 +1473,7 @@ class Actor(pygame.sprite.Sprite):
             pressed_keys = pygame.key.get_pressed()
             self.rect.centerx = self.x
             self.rect.centery = self.y
+            #pygame.mouse.set_pos(self.mouse[0],self.mouse[1])
             if self.stunned > 0:
                 self.stunned -= seconds
             if self.stunned < 1:
@@ -1467,7 +1504,7 @@ class Actor(pygame.sprite.Sprite):
                                     self.magic -= 50
                             if self.magic >= 200:
                                 if event.key == pygame.K_1:
-                                  if event.key == pygame.K_LSHIFT:
+                                  #if event.key == pygame.K_LSHIFT:
                                     for x in range (1000):
                                         Explosion((self.x-100,self.y))
                                         Explosion((self.x+100,self.y))
@@ -1481,10 +1518,10 @@ class Actor(pygame.sprite.Sprite):
                                 if event.key == pygame.K_6:
                                     for x in range(5):
                                         Porters((self.x-150,self.y))
-                            if self.magic >= 300:
+                            if self.magic >= 100:
                                 if event.key == pygame.K_2:
-                                    for x in range (500):
-                                        Explosion((self.x-300,self.y))
+                                    #for x in range (500):
+                                    Shoot((self.x,self.y))
                                     self.magic -= 300
                                 if event.key == pygame.K_8:
                                     for x in range(200):
@@ -1523,7 +1560,6 @@ class Actor(pygame.sprite.Sprite):
                                 self.hitpoints = self.hitpointsfull
                                 self.magic = self.magicfull
             #self.mouse=pygame.mouse.get_pos()
-            #pygame.mouse.set_pos(self.mouse[0]-5,self.mouse[1]-5)
             
             #self.x=self.mouse[0]
             #self.y=self.mouse[1]
@@ -1731,73 +1767,73 @@ class Actor2(pygame.sprite.Sprite):
                     self.magic-= 10
                 if self.magic < self.magicfull:
                     self.magic += 0.1
-                for event in pygame.event.get():
-                        if event.type == pygame.KEYDOWN:
-                            #print(event.type)
-                            if self.magic >= 50:
-                                if event.key == pygame.K_3:
-                                    for x in range(30):
-                                        Explosion((self.x,self.y))
-                                    self.x += 100
-                                    self.hitpoints -= 50
-                                    self.magic -= 50
-                            if self.magic >= 200:
-                                if event.key == pygame.K_1:
-                                  if even.key == pygame.K_LSHIFT:
-                                    for x in range (1000):
-                                        Explosion((self.x-100,self.y))
-                                        Explosion((self.x+100,self.y))
-                                        Explosion((self.x,self.y-100))
-                                        Explosion((self.x,self.y+100))
-                                        Explosion((self.x-75,self.y+75))
-                                        Explosion((self.x+75,self.y-75))
-                                        Explosion((self.x+75,self.y+75))
-                                        Explosion((self.x-75,self.y-75))
-                                    self.magic -= 200
-                                if event.key == pygame.K_6:
-                                    for x in range(5):
-                                        Porters((self.x-150,self.y))
-                            if self.magic >= 300:
-                                if event.key == pygame.K_2:
-                                    for x in range (500):
-                                        Explosion((self.x-300,self.y))
-                                    self.magic -= 300
-                                if event.key == pygame.K_8:
-                                    for x in range(200):
-                                        Fireball((self.x- 300,self.y))
-                                    self.magic -= 300
-                            if self.magic >= 400:
-                                if event.key == pygame.K_4:
-                                    self.hitpoints += self.hitpointsfull/2
-                                    self.magic -= 400
-                            if self.magic >= 400:
-                                if self.hitpoints > 200:
-                                    if event.key == pygame.K_9:
-                                        for x in range(20):
-                                            Fireball((self.x,self.y))
-                                            Explosion((self.x,self.y))
-                                            Porters((self.x,self.y))
-                                        self.magic -= 400
-                                        self.hitpoints -= 200
-                            if self.hitpoints > 500:
-                                if event.key == pygame.K_5:
-                                    for x in range(3000):
-                                        Explosion((self.x,self.y))
-                                    self.hitpoints -= 500
-                            if self.hitpoints > 300:
-                                if event.key == pygame.K_7:
-                                    for x in range(200):
-                                        Porters((self.x,self.y))
-                                    self.hitpoints -= 300
-                            if event.key == pygame.K_0:
-                                if random.random() <0.9:
-                                    self.hitpoints = 10
-                                else:
-                                    Game.ACTOR_REGEN += 0.05
-                                    print("congrats")
-                            if event.key == pygame.K_h:
-                                self.hitpoints = self.hitpointsfull
-                                self.magic = self.magicfull
+                #for event in pygame.event.get():
+                        #if event.type == pygame.KEYDOWN:
+                            ##print(event.type)
+                            #if self.magic >= 50:
+                                #if event.key == pygame.K_3:
+                                    #for x in range(30):
+                                        #Explosion((self.x,self.y))
+                                    #self.x += 100
+                                    #self.hitpoints -= 50
+                                    #self.magic -= 50
+                            #if self.magic >= 200:
+                                #if event.key == pygame.K_1:
+                                  ##if even.key == pygame.K_LSHIFT:
+                                    #for x in range (1000):
+                                        #Explosion((self.x-100,self.y))
+                                        #Explosion((self.x+100,self.y))
+                                        #Explosion((self.x,self.y-100))
+                                        #Explosion((self.x,self.y+100))
+                                        #Explosion((self.x-75,self.y+75))
+                                        #Explosion((self.x+75,self.y-75))
+                                        #Explosion((self.x+75,self.y+75))
+                                        #Explosion((self.x-75,self.y-75))
+                                    #self.magic -= 200
+                                #if event.key == pygame.K_6:
+                                    #for x in range(5):
+                                        #Porters((self.x-150,self.y))
+                            #if self.magic >= 300:
+                                #if event.key == pygame.K_2:
+                                    #for x in range (500):
+                                        #Explosion((self.x-300,self.y))
+                                    #self.magic -= 300
+                                #if event.key == pygame.K_8:
+                                    #for x in range(200):
+                                        #Fireball((self.x- 300,self.y))
+                                    #self.magic -= 300
+                            #if self.magic >= 400:
+                                #if event.key == pygame.K_4:
+                                    #self.hitpoints += self.hitpointsfull/2
+                                    #self.magic -= 400
+                            #if self.magic >= 400:
+                                #if self.hitpoints > 200:
+                                    #if event.key == pygame.K_9:
+                                        #for x in range(20):
+                                            #Fireball((self.x,self.y))
+                                            #Explosion((self.x,self.y))
+                                            #Porters((self.x,self.y))
+                                        #self.magic -= 400
+                                        #self.hitpoints -= 200
+                            #if self.hitpoints > 500:
+                                #if event.key == pygame.K_5:
+                                    #for x in range(3000):
+                                        #Explosion((self.x,self.y))
+                                    #self.hitpoints -= 500
+                            #if self.hitpoints > 300:
+                                #if event.key == pygame.K_7:
+                                    #for x in range(200):
+                                        #Porters((self.x,self.y))
+                                    #self.hitpoints -= 300
+                            #if event.key == pygame.K_0:
+                                #if random.random() <0.9:
+                                    #self.hitpoints = 10
+                                #else:
+                                    #Game.ACTOR_REGEN += 0.05
+                                    #print("congrats")
+                            #if event.key == pygame.K_h:
+                                #self.hitpoints = self.hitpointsfull
+                                #self.magic = self.magicfull
             #self.mouse=pygame.mouse.get_pos()
             #pygame.mouse.set_pos(self.mouse[0]-5,self.mouse[1]-5)
             
@@ -2125,6 +2161,7 @@ class Viewer(object):
         self.stuffgroup = pygame.sprite.Group()
         self.fragmentgroup = pygame.sprite.Group()
         self.portersgroup = pygame.sprite.Group()
+        self.shootgroup = pygame.sprite.Group()
         self.fballgroup = pygame.sprite.Group()
         self.e_portersgroup = pygame.sprite.Group()
         self.e_fballgroup = pygame.sprite.Group()
@@ -2155,6 +2192,7 @@ class Viewer(object):
         Explosion.groups = self.allgroup, self.explosiongroup
         Fireball.groups = self.allgroup, self.fballgroup
         Porters.groups = self.allgroup, self.portersgroup
+        Shoot.groups = self.allgroup, self.shootgroup
         Healthbar.groups = self.allgroup, self.bargroup
         Magicbar.groups = self.allgroup, self.bargroup
         Flame.groups = self.allgroup
@@ -2358,6 +2396,10 @@ class Viewer(object):
                 crashgroup = pygame.sprite.spritecollide(mymonster, self.fballgroup, False)
                 for myporters in crashgroup:
                       mymonster.burntime += 5 * Game.MAGIC_POWER
+            for myshoot in self.shootgroup:
+                crashgroup = pygame.sprite.spritecollide(myshoot, self.monstergroup, False)
+                for mymonster in crashgroup:
+                      myshoot.explode = 1
             for myactor in self.actorgroup:
                 crashgroup = pygame.sprite.spritecollide(myactor, self.e_explosiongroup, False)
                 for mye_explosion in crashgroup:
